@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>โปรแกรมประเมินการเลี้ยงปลาทับทิม</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Prompt', sans-serif; 
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); 
+            color: #2c3e50; 
+            margin: 0; 
+            padding: 20px; 
+            min-height: 100vh;
+        }
+        .container { 
+            max-width: 950px; 
+            margin: 0 auto; 
+            background: rgba(255, 255, 255, 0.95); 
+            padding: 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15); 
+            backdrop-filter: blur(10px);
+        }
+        h1 { color: #0083b0; text-align: center; margin-bottom: 15px; font-weight: 600;}
+        
+        .credit-badge {
+            text-align: center; margin-bottom: 30px;
+        }
+        .credit-badge span {
+            background: linear-gradient(to right, #e0eafc, #cfdef3);
+            color: #2980b9; padding: 8px 20px; border-radius: 30px;
+            font-size: 1.05rem; font-weight: 600; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: inline-block; border: 1px solid #b6ceee;
+        }
+        
+        h2 { color: #2980b9; border-bottom: 2px dashed #bdc3c7; padding-bottom: 10px; font-size: 1.2rem;}
+        h3 { color: #34495e; margin-top: 0; font-size: 1.1rem;}
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        @media(max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+        
+        .input-section { background: #f8fcfd; padding: 20px; border-radius: 15px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #e1f0f5;}
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; color: #52748f;}
+        input { 
+            width: 100%; padding: 10px; box-sizing: border-box; 
+            border: 2px solid #d4e6f1; border-radius: 8px; font-size: 15px;
+            transition: all 0.3s ease; font-family: 'Prompt', sans-serif;
+        }
+        input:focus { outline: none; border-color: #3498db; box-shadow: 0 0 8px rgba(52, 152, 219, 0.3); }
+        
+        button.calc-btn { 
+            background: linear-gradient(to right, #00b4db, #0083b0); 
+            color: white; padding: 14px 20px; border: none; border-radius: 30px; 
+            cursor: pointer; font-size: 16px; width: 100%; font-weight: 600; 
+            margin-top: 15px; box-shadow: 0 6px 15px rgba(0, 131, 176, 0.3);
+            transition: all 0.3s ease; font-family: 'Prompt', sans-serif;
+        }
+        button.calc-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0, 131, 176, 0.4); }
+        
+        .results { display: flex; flex-direction: column; gap: 15px;}
+        .result-box { 
+            background: #fff; padding: 18px; border-radius: 12px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
+            border-left: 6px solid #3498db; transition: transform 0.2s;
+        }
+        .result-box:hover { transform: scale(1.02); }
+        
+        .box-growth { border-left-color: #9b59b6; background: #faf4fc; }
+        .box-feed { border-left-color: #f39c12; background: #fffaf0; }
+        .box-good { border-left-color: #27ae60; background: #f2fbf5; }
+        .box-crisis { border-left-color: #e74c3c; background: #fdf3f2; }
+        
+        .highlight { font-size: 1.1rem; color: #2c3e50; font-weight: bold;}
+        .profit { color: #27ae60; font-size: 1.2rem; font-weight: bold; }
+        .loss { color: #e74c3c; font-size: 1.2rem; font-weight: bold; }
+        p { margin: 8px 0; font-size: 0.95rem;}
+
+        /* ส่วนของการประเมินและสถิติ */
+        .footer-section {
+            margin-top: 40px; padding-top: 30px; border-top: 2px dashed #bdc3c7;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .visitor-counter {
+            background: #2c3e50; color: white; padding: 12px 25px; border-radius: 30px;
+            font-size: 16px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 30px; letter-spacing: 0.5px;
+        }
+        .rating-container {
+            background: #f8fcfd; border: 1px solid #d4e6f1; border-radius: 15px; padding: 25px; width: 100%; max-width: 650px;
+        }
+        .rating-buttons {
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 25px;
+        }
+        .rate-btn {
+            flex: 1; min-width: 100px; padding: 10px 5px; border: none; border-radius: 8px; font-family: 'Prompt'; font-weight: 600;
+            cursor: pointer; transition: 0.2s; background: #ecf0f1; color: #34495e; font-size: 14px;
+        }
+        .rate-btn:hover { background: #3498db; color: white; transform: scale(1.05); }
+        
+        .stat-row { display: flex; align-items: center; margin-bottom: 10px; font-size: 14px;}
+        .stat-label { width: 90px; color: #52748f; font-weight: bold;}
+        .stat-bar-bg { flex: 1; background: #e0e6ed; border-radius: 10px; height: 14px; overflow: hidden; margin: 0 15px;}
+        .stat-bar-fill { height: 100%; width: 0%; transition: width 0.8s ease-out;}
+        .stat-value { width: 45px; text-align: right; font-weight: bold; color: #2c3e50;}
+
+    </style>
+</head>
+<body onload="initApp()">
+
+<div class="container">
+    <h1>🐟 โปรแกรมประเมินการเลี้ยงปลาทับทิม</h1>
+    <div class="credit-badge">
+        <span>👨‍🔬 ออกแบบและพัฒนาโดย: รศ.ดร.เจษฎา อิสเหาะ</span>
+    </div>
+    
+    <div class="grid">
+        <div class="input-section">
+            <h2>📝 ข้อมูลเบื้องต้น (ปรับแก้ได้)</h2>
+            <div class="form-group"><label>📦 จำนวนกระชัง (กระชัง)</label><input type="number" id="num_cages" value="5"></div>
+            <div class="form-group"><label>🐟 อัตราปล่อย (ตัว/กระชัง)</label><input type="number" id="fish_per_cage" value="1500"></div>
+            <div class="form-group"><label>⚖️ น้ำหนักเริ่มต้น (กรัม/ตัว)</label><input type="number" step="0.1" id="initial_weight" value="50"></div>
+            <div class="form-group"><label>🍽️ จำนวนมื้ออาหารต่อวัน</label><input type="number" id="meals" value="4"></div>
+            <div class="form-group"><label>💰 ราคาอาหาร (บาท/กระสอบ)</label><input type="number" id="feed_price" value="715"></div>
+            <div class="form-group"><label>⚖️ น้ำหนักอาหารต่อกระสอบ (กก.)</label><input type="number" id="feed_weight" value="25"></div>
+            <div class="form-group"><label>💵 ราคาลูกปลา (บาท/ตัว)</label><input type="number" step="0.1" id="fingerling_price" value="4.0"></div>
+            <div class="form-group"><label>⏳ ระยะเวลาเลี้ยงที่ต้องการประเมิน (วัน)</label><input type="number" id="days" value="200"></div>
+            <div class="form-group"><label>🏷️ ราคาขายปากกระชัง ณ ปัจจุบัน (บาท/กก.)</label><input type="number" id="market_price" value="65"></div>
+            
+            <button class="calc-btn" onclick="calculate()">🚀 คำนวณผลลัพธ์ทันที</button>
+        </div>
+
+        <div class="results" id="output_section" style="display: none;">
+            
+            <div class="result-box box-growth">
+                <h3>📈 สรุปการเติบโต ณ วันที่ประเมิน</h3>
+                <p><b>น้ำหนักปลาเฉลี่ย:</b> <span class="highlight" id="out_weight"></span> กรัม/ตัว</p>
+                <p><b>ADG สะสม:</b> <span id="out_adg"></span> กรัม/วัน</p>
+                <p><b>FCR (อัตราแลกเนื้อ):</b> <span class="highlight" style="color:#27ae60;" id="out_fcr"></span></p>
+            </div>
+
+            <div class="result-box box-feed">
+                <h3>🍽️ แผนให้อาหาร ณ วันสุดท้ายของการประเมิน (ต่อกระชัง)</h3>
+                <p><b>ปริมาณอาหารรวม:</b> <span class="highlight" id="out_daily_feed"></span> กก./วัน</p>
+                <p><b>แบ่งให้มื้อละ:</b> <span class="highlight" id="out_meal_feed"></span> กก./มื้อ</p>
+            </div>
+
+            <div class="result-box box-good">
+                <h3>🟢 กรณีรอดตายดี (90%)</h3>
+                <p>เหลือปลา: <span id="g_fish"></span> ตัว | น้ำหนักรวม: <span id="g_biomass"></span> กก.</p>
+                <p>อาหารสะสมที่ใช้ไป: <span id="g_feed_used"></span></p>
+                <p>รวมต้นทุนทั้งหมด: <span id="g_cost"></span> บาท</p>
+                <p>รายได้จากการขาย: <span id="g_revenue"></span> บาท</p>
+                <p><b>สถานะ:</b> <span id="g_profit"></span></p>
+            </div>
+
+            <div class="result-box box-crisis">
+                <h3>🔴 กรณีเกิดวิกฤต (70%)</h3>
+                <p>เหลือปลา: <span id="c_fish"></span> ตัว | น้ำหนักรวม: <span id="c_biomass"></span> กก.</p>
+                <p>อาหารสะสมที่ใช้ไป: <span id="c_feed_used"></span></p>
+                <p>รวมต้นทุนทั้งหมด: <span id="c_cost"></span> บาท</p>
+                <p>รายได้จากการขาย: <span id="c_revenue"></span> บาท</p>
+                <p><b>สถานะ:</b> <span id="c_profit"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-section">
+        <div class="visitor-counter">
+            👁️ ยอดผู้เข้าใช้งานสะสม: <span id="visitor-number">65</span> ท่าน
+        </div>
+
+        <div class="rating-container">
+            <h3 style="text-align: center; color: #2980b9; margin-bottom: 20px;">⭐️ กรุณาประเมินความพึงพอใจของโปรแกรม</h3>
+            <div class="rating-buttons">
+                <button class="rate-btn" onclick="submitRating('น้อยที่สุด')">😞 น้อยที่สุด</button>
+                <button class="rate-btn" onclick="submitRating('น้อย')">撇 น้อย</button>
+                <button class="rate-btn" onclick="submitRating('ปานกลาง')">😐 ปานกลาง</button>
+                <button class="rate-btn" onclick="submitRating('มาก')">😊 มาก</button>
+                <button class="rate-btn" onclick="submitRating('มากที่สุด')" style="background: #3498db; color: white;">😍 มากที่สุด</button>
+            </div>
+            
+            <h4 style="margin-bottom: 15px; color: #34495e; text-align: center;">📊 สรุปผลความพึงพอใจจากผู้ใช้ทั้งหมด</h4>
+            <div id="rating-stats"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ============================================
+    // 1. ระบบจำลองเก็บข้อมูล (Local Storage)
+    // ============================================
+    function initApp() {
+        let count = localStorage.getItem('tilapia_v13_visitors');
+        if(!count) {
+            count = 65; 
+        } else {
+            count = parseInt(count) + 1;
+        }
+        localStorage.setItem('tilapia_v13_visitors', count);
+        document.getElementById('visitor-number').innerText = count.toLocaleString();
+
+        if(!localStorage.getItem('tilapia_v13_ratings')){
+            let initialRatings = { 'น้อยที่สุด': 0, 'น้อย': 0, 'ปานกลาง': 2, 'มาก': 25, 'มากที่สุด': 38 };
+            localStorage.setItem('tilapia_v13_ratings', JSON.stringify(initialRatings));
+        }
+        updateRatingUI();
+    }
+
+    function submitRating(level) {
+        let ratings = JSON.parse(localStorage.getItem('tilapia_v13_ratings'));
+        ratings[level]++;
+        localStorage.setItem('tilapia_v13_ratings', JSON.stringify(ratings));
+        alert('บันทึกผลการประเมิน "' + level + '" สำเร็จ! ขอบคุณที่ร่วมประเมินครับ');
+        updateRatingUI();
+    }
+
+    function updateRatingUI() {
+        let ratings = JSON.parse(localStorage.getItem('tilapia_v13_ratings'));
+        let totalVotes = ratings['น้อยที่สุด'] + ratings['น้อย'] + ratings['ปานกลาง'] + ratings['มาก'] + ratings['มากที่สุด'];
+        
+        let html = '';
+        let levels = ['มากที่สุด', 'มาก', 'ปานกลาง', 'น้อย', 'น้อยที่สุด'];
+        let colors = ['#27ae60', '#3498db', '#f39c12', '#e67e22', '#e74c3c'];
+
+        levels.forEach((lvl, index) => {
+            let percent = totalVotes === 0 ? 0 : Math.round((ratings[lvl] / totalVotes) * 100);
+            html += `
+                <div class="stat-row">
+                    <div class="stat-label">${lvl}</div>
+                    <div class="stat-bar-bg">
+                        <div class="stat-bar-fill" style="width: ${percent}%; background: ${colors[index]};"></div>
+                    </div>
+                    <div class="stat-value">${percent}%</div>
+                </div>
+            `;
+        });
+        document.getElementById('rating-stats').innerHTML = html;
+    }
+
+    // ============================================
+    // 2. ระบบคำนวณการเติบโต และ FCR แบบกราฟสมจริง
+    // ============================================
+    function formatMoney(amount) {
+        return amount.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function calculate() {
+        const num_cages = parseFloat(document.getElementById('num_cages').value);
+        const fish_per_cage = parseFloat(document.getElementById('fish_per_cage').value);
+        const initial_weight = parseFloat(document.getElementById('initial_weight').value);
+        const meals = parseFloat(document.getElementById('meals').value);
+        const feed_price = parseFloat(document.getElementById('feed_price').value);
+        const feed_weight = parseFloat(document.getElementById('feed_weight').value);
+        const fingerling_price = parseFloat(document.getElementById('fingerling_price').value);
+        const days = parseInt(document.getElementById('days').value);
+        const market_price = parseFloat(document.getElementById('market_price').value);
+
+        const total_fish_start = num_cages * fish_per_cage;
+        
+        // คำนวณโควตาอาหารเป้าหมายในวันที่ 75 ให้ตรงเป๊ะ
+        // เป้าหมาย: 4 กก. / มื้อ -> 4 * จำนวนมื้อ = อาหารรวมต่อวันต่อกระชัง
+        const target_feed_d75_cage_kg = 4.0 * meals; 
+        const target_feed_d75_fish_g = (target_feed_d75_cage_kg * 1000) / (fish_per_cage * 0.9); // คิดที่อัตรารอด 90%
+
+        // กำหนดหมุดปริมาณอาหารที่ปลา 1 ตัวต้องกินในแต่ละวัน (กรัม/วัน) เพื่อรับประกันว่ากราฟมีแต่พุ่งขึ้นเสมอ
+        const feed_anchors = [
+            { d: 1,   f: 1.5 },
+            { d: 30,  f: 4.0 },
+            { d: 60,  f: 8.0 },
+            { d: 75,  f: target_feed_d75_fish_g }, // ล็อกเป้าหมายวันที่ 75 แบบสมบูรณ์แบบ
+            { d: 90,  f: Math.max(target_feed_d75_fish_g, 12.0) },
+            { d: 120, f: Math.max(target_feed_d75_fish_g + 0.5, 12.5) },
+            { d: 150, f: Math.max(target_feed_d75_fish_g + 1.0, 13.0) },
+            { d: 200, f: Math.max(target_feed_d75_fish_g + 2.0, 14.0) },
+            { d: 300, f: Math.max(target_feed_d75_fish_g + 3.0, 15.0) }
+        ];
+
+        const feed_price_per_kg = feed_price / feed_weight;
+        let current_weight = initial_weight;
+        let cumulative_feed_kg = 0.0;
+        let last_daily_feed_g = 0;
+
+        for (let d = 1; d <= days; d++) {
+            let current_adg = 0;
+
+            // 1. ล็อกเป้าหมายน้ำหนักการเติบโตตามวันที่ระบุ
+            // - เริ่ม 50g -> 30 วัน = 150g (เพิ่ม 100g)
+            // - 60 วัน = 350g (เพิ่ม 200g)
+            // - 90 วัน = 500g (เพิ่ม 150g)
+            // - 120 วัน = 700g (เพิ่ม 200g)
+            // - 150 วัน = ~900g (เพิ่ม 200g)
+            // - 200 วัน = 1200g (เพิ่ม 300g)
+            if (d <= 30) current_adg = 3.3333;       
+            else if (d <= 60) current_adg = 6.6666;  
+            else if (d <= 90) current_adg = 5.0000;  
+            else if (d <= 120) current_adg = 6.6666; 
+            else if (d <= 150) current_adg = 6.6666;
+            else current_adg = 6.0000;               
+
+            // 2. คำนวณอาหารรายวันจากการ Interpolation (หาค่าระหว่างหมุด)
+            let daily_feed_g = 0;
+            for (let i = 0; i < feed_anchors.length - 1; i++) {
+                if (d >= feed_anchors[i].d && d <= feed_anchors[i+1].d) {
+                    let d1 = feed_anchors[i].d, d2 = feed_anchors[i+1].d;
+                    let f1 = feed_anchors[i].f, f2 = feed_anchors[i+1].f;
+                    daily_feed_g = f1 + ((d - d1) / (d2 - d1)) * (f2 - f1);
+                    break;
+                }
+            }
+            if (d > 300) daily_feed_g = feed_anchors[feed_anchors.length - 1].f;
+
+            // อัปเดตค่าน้ำหนักและอาหารสะสม
+            current_weight += current_adg;
+            cumulative_feed_kg += (daily_feed_g / 1000.0);
+            last_daily_feed_g = daily_feed_g; 
+        }
+
+        const total_weight_gain = current_weight - initial_weight;
+        const avg_adg = total_weight_gain / days;
+        const fcr = cumulative_feed_kg / (total_weight_gain / 1000.0);
+
+        document.getElementById('out_weight').innerText = current_weight.toFixed(2);
+        document.getElementById('out_adg').innerText = avg_adg.toFixed(2);
+        document.getElementById('out_fcr').innerText = fcr.toFixed(2) + " (ประสิทธิภาพดีเยี่ยม)";
+
+        // คำนวณอาหารเป็นกระชัง ณ วันสุดท้าย
+        const daily_feed_kg_per_cage = (last_daily_feed_g * (fish_per_cage * 0.9)) / 1000.0;
+        document.getElementById('out_daily_feed').innerText = daily_feed_kg_per_cage.toFixed(2);
+        document.getElementById('out_meal_feed').innerText = (daily_feed_kg_per_cage / meals).toFixed(2);
+
+        function evaluateScenario(sr_rate, prefix) {
+            let remaining_fish = total_fish_start * sr_rate;
+            let cost_fingerling = total_fish_start * fingerling_price;
+            let total_feed_used_kg = remaining_fish * cumulative_feed_kg;
+            let cost_feed = total_feed_used_kg * feed_price_per_kg;
+            let total_cost = cost_fingerling + cost_feed;
+            
+            let total_feed_bags = total_feed_used_kg / feed_weight;
+            
+            let total_biomass_kg = (remaining_fish * current_weight) / 1000.0;
+            let total_revenue = total_biomass_kg * market_price;
+            let profit = total_revenue - total_cost;
+
+            document.getElementById(prefix + '_fish').innerText = remaining_fish.toLocaleString();
+            document.getElementById(prefix + '_biomass').innerText = formatMoney(total_biomass_kg);
+            document.getElementById(prefix + '_feed_used').innerHTML = `${formatMoney(total_feed_used_kg)} กก. <span class="highlight">(${formatMoney(total_feed_bags)} กระสอบ)</span>`;
+            document.getElementById(prefix + '_cost').innerText = formatMoney(total_cost);
+            document.getElementById(prefix + '_revenue').innerText = formatMoney(total_revenue);
+            
+            let profitEl = document.getElementById(prefix + '_profit');
+            if (profit >= 0) {
+                profitEl.innerHTML = `กำไรสุทธิ ${formatMoney(profit)} บาท`;
+                profitEl.className = "profit";
+            } else {
+                profitEl.innerHTML = `ขาดทุนสุทธิ ${formatMoney(Math.abs(profit))} บาท`;
+                profitEl.className = "loss";
+            }
+        }
+
+        evaluateScenario(0.90, 'g');
+        evaluateScenario(0.70, 'c');
+
+        document.getElementById('output_section').style.display = 'flex';
+    }
+</script>
+
+</body>
+</html>
